@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- persistence le indica que es un archivo de persistencia dentro de el 
+	debe de haber por lo menos un persistence-unit que tiene que tener un nombre -->
+
+<persistence version="2.1"
+	xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence 
+http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+
+	<!-- name de persistence-unit es el nombre no el que deberemos llamar para 
+		poder utilizar el gestor de persistencia -->
+
+	<persistence-unit name="Ejercicio03InstitutoHQL"
+		transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+		<!-- class especificamos las clases que vamos a persistir -->
+		<class>modelo.Alumno</class>
+		<class>modelo.Curso</class>
+		<class>modelo.Modulo</class>
+		<class>modelo.Nota</class>
+		<class>modelo.Profesor</class>
+
+		<properties>
+			<!-- mantiene los parámetros de conexión con la base de datos -->
+			<property name="javax.persistence.jdbc.url"
+				value="jdbc:mysql://gac.duckdns.org:3306/UD03EjercicioBDInstituto
+				?useSSL=false&amp;serverTimezone=UTC" />
+			<property name="javax.persistence.jdbc.user" value="zalo" />
+			<property name="javax.persistence.jdbc.password" value="zz123456" />
+			<property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver" />
+
+			<property name="hibernate.hbm2ddl.auto" value="create" />
+		</properties>
+	</persistence-unit>
+</persistence>
