@@ -13,6 +13,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 @Entity
 @Table (name = "profesores")
 public class Profesor {
@@ -44,12 +47,13 @@ public class Profesor {
 	@Column (name = "prSalario")
 	private int salario;
 	
-	@OneToMany (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany (cascade = CascadeType.ALL)
+	@LazyCollection(LazyCollectionOption.FALSE)
 	@JoinColumn(name="moCodigo")
 	private List<Modulo> modulos;
 	/********************/
 	public Profesor(String dni, String nombre, String apellidos, String direccion, int codPostal, String ciudad,
-			int telefono, Date fecnacimiento, int salario, List<Modulo> modulos) {
+			int telefono, Date fecnacimiento, int salario) {
 		super();
 		this.dni = dni;
 		this.nombre = nombre;
@@ -60,7 +64,7 @@ public class Profesor {
 		this.telefono = telefono;
 		this.fecnacimiento = fecnacimiento;
 		this.salario = salario;
-		this.modulos = modulos == null? new ArrayList<>() : modulos;
+		this.modulos = null;
 	}
 	public Profesor() {
 		super();
@@ -131,6 +135,6 @@ public class Profesor {
 	public String toString() {
 		return "Profesor [dni=" + dni + ", nombre=" + nombre + ", apellidos=" + apellidos + ", direccion=" + direccion
 				+ ", codPostal=" + codPostal + ", ciudad=" + ciudad + ", telefono=" + telefono + ", fecnacimiento="
-				+ fecnacimiento + ", salario=" + salario + ", modulos=" + modulos + "]";
+				+ fecnacimiento + ", salario=" + salario + "]";
 	}
 }

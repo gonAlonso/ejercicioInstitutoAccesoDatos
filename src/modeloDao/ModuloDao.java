@@ -13,9 +13,11 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.Table;
 
 import modelo.Alumno;
+import modelo.Curso;
 import modelo.Modulo;
 
 
@@ -24,6 +26,7 @@ public class ModuloDao {
 
 	public static void insertarModulo(Modulo modulo) {
 		EntityManager em = emf.createEntityManager();
+		
 		if(em.find(Modulo.class, modulo.getCodigo()) != null) {
 			System.out.println("El modulo ya existe!! Cancelado");
 			return;
@@ -42,6 +45,33 @@ public class ModuloDao {
 		}
 		finally { em.close(); }
 	}
-	
 
+	public static List<Modulo> listadoModulos() {
+		EntityManager em = emf.createEntityManager();
+		String consulta = "select m from Modulo m";
+		Query query = em.createQuery(consulta);
+		List<Modulo> list = query.getResultList();
+		em.close();
+		return list;
+	}
+
+	public static Modulo getModulo(int idModulo) {
+		Modulo modulo;
+		EntityManager em = emf.createEntityManager();
+		String consulta = "select m from Modulo m where m.codigo = :id";
+		Query query = em.createQuery(consulta);
+		query.setParameter( "id", idModulo);
+		try {
+			modulo = (Modulo) query.getSingleResult();
+		}
+		catch (Exception e) {
+			modulo = null;
+		}
+		finally {
+			em.close();
+		}
+		return modulo;
+	}
+
+	
 }

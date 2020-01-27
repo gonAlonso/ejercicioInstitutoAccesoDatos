@@ -25,7 +25,7 @@ public class Nota {
 	@JoinColumn (name = "noDniAl")
 	private Alumno alumno;
 	
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = CascadeType.ALL)//, fetch = FetchType.EAGER)
 	@JoinColumn (name = "noCodModulo")
 	private Modulo modulo;
 	
@@ -66,6 +66,6 @@ public class Nota {
 	/*******************/
 	@Override
 	public String toString() {
-		return "Nota [codigo=" + codigo + ", alumno=" + alumno + ", modulo=" + modulo + ", nota=" + nota + "]";
+		return "Nota [codigo=" + codigo + ", alumno=" + alumno.getNombre() +", nota=" + nota + ", modulo="+ modulo.getCodigo() +"]";
 	}
 }

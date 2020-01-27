@@ -27,15 +27,22 @@ public class AlumnoDao {
 		return list;
 	}
 	
-	
 
 	
 	public static List<Alumno> listadoAlumnosDelegados() {
+		List<Alumno> lista;
 		EntityManager em =emf.createEntityManager();
-		String consulta = "from Alumno a where a.delegado == true";
+		String consulta = "from Alumno a where a.delegado=1";
 		Query query = em.createQuery(consulta);
-		List<Alumno> lista = query.getResultList();
-		em.close();
+		try {
+			lista = query.getResultList();
+		}
+		catch (Exception e) {
+			lista = null;
+		}
+		finally {
+			em.close();
+		}
 		return lista;
 	}
 	
@@ -62,21 +69,4 @@ public class AlumnoDao {
 	}
 	
 	/***********************/
-	public static void addAlumnoACurso( Alumno alumno, Curso curso) {
-		EntityManager em = emf.createEntityManager();
-				
-		try {
-			alumno.setCurso(curso);
-			em.getTransaction().begin();
-			em.persist(alumno);
-			em.getTransaction().commit();
-			System.out.println("Alumno añadido al Modulo");
-		}
-		catch (Exception e) {
-			em.getTransaction().rollback();
-			e.printStackTrace();
-			System.out.println("Error al insertar Alumno al Modulo");
-		}
-		finally { em.close(); }
-	}
 }

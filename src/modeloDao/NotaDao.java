@@ -1,5 +1,7 @@
 package modeloDao;
 
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,8 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.Table;
 
+import modelo.Alumno;
+import modelo.Curso;
 import modelo.Modulo;
 import modelo.Nota;
 
@@ -21,6 +26,15 @@ import modelo.Nota;
 public class NotaDao {
 	static EntityManagerFactory emf = Persistence.createEntityManagerFactory("Ejercicio03InstitutoHQL");
 
+	public static List<Nota> listadoNotas() {
+		EntityManager em = emf.createEntityManager();
+		String consulta = "select n from Nota n";
+		Query query = em.createQuery(consulta);
+		List<Nota> list = query.getResultList();
+		em.close();
+		return list;
+	}
+	
 	public static void insertarNota(Nota nota) {
 		EntityManager em = emf.createEntityManager();
 		if(em.find(Nota.class, nota.getCodigo()) != null) {

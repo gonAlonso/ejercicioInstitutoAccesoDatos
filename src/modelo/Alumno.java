@@ -15,10 +15,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 
 @Entity
 @Table (name = "Alumnos")
 public class Alumno implements Serializable{
+	final static int APROBADO = 5;
 	
 	@Column (name = "alNombre", length = 15, nullable = false)
 	private String nombre;
@@ -48,11 +52,13 @@ public class Alumno implements Serializable{
 	@Column (name = "alDelegado")
 	private boolean delegado;
 	
-	@ManyToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne (cascade = CascadeType.ALL)
+	@LazyCollection(LazyCollectionOption.FALSE)
 	@JoinColumn( name ="alCurso")
 	private Curso curso;
 	
-	@OneToMany (mappedBy = "alumno")//, fetch = FetchType.EAGER)
+	@OneToMany (mappedBy = "alumno")
+	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<Nota> notas;
 
 	/******** CONSTRUCTORES ********/
@@ -71,20 +77,6 @@ public class Alumno implements Serializable{
 		this.delegado = delegado;
 	}
 	
-	public Alumno(String nombre, String dni, String apellidos, String direccion, String codPostal, String ciudad,
-			String telefono, Date fecNacimiento, boolean delegado, Curso curso, List<Nota> notas) {
-		this.nombre = nombre;
-		this.dni = dni;
-		this.apellidos = apellidos;
-		this.direccion = direccion;
-		this.codPostal = codPostal;
-		this.ciudad = ciudad;
-		this.telefono = telefono;
-		this.fecNacimiento = fecNacimiento;
-		this.delegado = delegado;
-		this.curso = curso;
-		this.notas = notas==null? new ArrayList<>() : notas;
-	}
 	/******** GETTERS Y SETTERS ********/
 	public String getNombre() {
 		return nombre;
@@ -157,6 +149,19 @@ public class Alumno implements Serializable{
 	public String toString() {
 		return "Alumno [nombre=" + nombre + ", dni=" + dni + ", apellidos=" + apellidos + ", direccion=" + direccion
 				+ ", codPostal=" + codPostal + ", ciudad=" + ciudad + ", telefono=" + telefono + ", fecNacimiento="
-				+ fecNacimiento + ", delegado=" + delegado + ", curso=" + curso + ", notas=" + notas + "]";
+				+ fecNacimiento + ", delegado=" + delegado + ", curso=" + curso + "]";
+	}
+	
+	public float getNotaMedia() {
+		float media = 0;
+		int suspensas = 0;
+		for( Nota nota : this.notas) {
+			if(nota.getNota() < 5) {
+				if( suspensas >1) return -1;
+				suspensas++;
+			}
+			media += nota.getNota();
+		}
+		return media / this.notas.size();
 	}
 }

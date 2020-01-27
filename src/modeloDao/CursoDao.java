@@ -25,24 +25,31 @@ import modelo.Curso;
 public class CursoDao {
 	static EntityManagerFactory emf = Persistence.createEntityManagerFactory("Ejercicio03InstitutoHQL");
 
-	public static void listarCursos() {
-		
+	public static Curso getCurso(int id) {
+		Curso curso;
 		EntityManager em = emf.createEntityManager();
-		String consulta = "from modelo.Curso c";
-		ArrayList<Curso> listaCursos=null;
-		try{
-			Query query = em.createQuery(consulta);
-			listaCursos = (ArrayList<Curso>) query.getResultList();
-			if ( listaCursos.size() == 0) {
-				System.out.println("Lista de cursos vacia");
-				return;
-			}
-		}catch (NoResultException e) {e.printStackTrace();}
-		finally{ em.close(); }
-
-		for( Curso c  : listaCursos ) {
-			c.toString();
+		String consulta = "select c from Curso c where c.codigo = :idCurso";
+		Query query = em.createQuery(consulta);
+		query.setParameter( "idCurso", id);
+		try {
+			curso = (Curso) query.getSingleResult();
 		}
+		catch (Exception e) {
+			curso = null;
+		}
+		finally {
+			em.close();
+		}
+		return curso;
+	}
+	
+	public static List<Curso> listadoCursos() {
+		EntityManager em = emf.createEntityManager();
+		String consulta = "select c from Curso c";
+		Query query = em.createQuery(consulta);
+		List<Curso> list = query.getResultList();
+		em.close();
+		return list;
 	}
 	
 	public static void insertarCurso(Curso curso) {
@@ -80,8 +87,26 @@ public class CursoDao {
 		return lista;
 	}
 
-	public static void addAlumnoACurso(Alumno alumno, Curso curso) {
-		listarCursos();
-		
+	public static void addAlumnoACurso( Alumno alumno, Curso curso) {
+		EntityManager em = emf.createEntityManager();
+				
+		try {
+			Curso mCurso = em.find(Curso.class, curso.getCodigo()); 
+			Alumno mAlumno = em.find(Alumno.class, alumno .getDni());
+			
+			mAlumno.setCurso( mCurso );
+			//alumno.setCurso(cursoIn);
+			
+			em.getTransaction().begin();
+			em.persist(mAlumno);
+			em.getTransaction().commit();
+			System.out.println("Alumno añadido al Modulo");
+		}
+		catch (Exception e) {
+			em.getTransaction().rollback();
+			e.printStackTrace();
+			System.out.println("Error al insertar Alumno al Modulo");
+		}
+		finally { em.close(); }
 	}
 }

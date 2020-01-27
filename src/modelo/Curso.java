@@ -14,6 +14,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 @Entity
 @Table (name = "Cursos")
 public class Curso {
@@ -28,10 +31,12 @@ public class Curso {
 	@Column (name = "cuHoras")
 	private int horas;
 	
-	@OneToMany (mappedBy = "curso", cascade = CascadeType.ALL)
+	@OneToMany (mappedBy = "curso", cascade = CascadeType.ALL)//, fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<Modulo> modulos;
 	
-	@OneToMany (mappedBy = "curso", cascade = CascadeType.ALL)
+	@OneToMany (mappedBy = "curso", cascade = CascadeType.ALL)//, fetch = FetchType.LAZY)
+	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<Alumno> alumnos;
 
 	/***********************/
@@ -39,15 +44,8 @@ public class Curso {
 	public Curso(String nombre, int horas) {
 		this.nombre = nombre;
 		this.horas = horas;
-		this.modulos = new ArrayList<>();
-		this.alumnos = new ArrayList<>();
 	}
-	public Curso(String nombre, int horas, List<Modulo> modulos, List<Alumno> alumnos) {
-		this.nombre = nombre;
-		this.horas = horas;
-		this.modulos = modulos==null? new ArrayList<>() : modulos;
-		this.alumnos = alumnos==null? new ArrayList<>() : alumnos;
-	}
+	
 	/*****************************/
 	public int getCodigo() {
 		return codigo;
@@ -85,8 +83,6 @@ public class Curso {
 	/*********************/
 	@Override
 	public String toString() {
-		return "Curso [codigo=" + codigo + ", nombre=" + nombre + ", horas=" + horas + ", modulos=" + modulos
-				+ ", alumnos=" + alumnos + "]";
+		return "Curso [codigo=" + codigo + ", nombre=" + nombre + ", horas=" + horas +  "]";
 	}
-	
 }

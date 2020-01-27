@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.Table;
 
 import modelo.Alumno;
@@ -40,5 +41,14 @@ public class ProfesorDao {
 			e.printStackTrace();
 		}
 		finally { em.close();}
+	}
+	
+	public static List<Profesor> listadoProfesores() {
+		EntityManager em = emf.createEntityManager();
+		String consulta = "select a from Alumno a";
+		Query query = em.createQuery(consulta);
+		List<Profesor> list = query.getResultList();
+		em.close();
+		return list;
 	}
 }

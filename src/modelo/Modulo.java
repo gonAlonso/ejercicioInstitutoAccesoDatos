@@ -16,6 +16,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import modeloDao.ModuloDao;
 
 @Entity
@@ -33,31 +36,29 @@ public class Modulo {
 	@Column (name = "moHoras")
 	private int horas;
 	
-	@ManyToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne (cascade = CascadeType.ALL)
+	@LazyCollection(LazyCollectionOption.FALSE)
 	@JoinColumn(name="moDniProfesor")
 	private Profesor profesor;
 	
-	@ManyToOne (cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne (cascade = CascadeType.ALL)
+	@LazyCollection(LazyCollectionOption.FALSE)
 	@JoinColumn(name="moCurso")
 	private Curso curso;
 	
 	@OneToMany(mappedBy = "modulo")
+	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<Nota> notas;
 
 	/***********************/
-	public Modulo( String nombre, int horas, Profesor profesor) {
-		this.nombre = nombre;
-		this.horas = horas;
-		this.profesor = profesor;
-	}
-
-	public Modulo( String nombre, int horas, Profesor profesor, List<Nota> notas) {
-		this.nombre = nombre;
-		this.horas = horas;
-		this.profesor = profesor;
-		this.notas = notas == null? new ArrayList<>() : notas;
-	}
 	public Modulo() {}
+	public Modulo( String nombre, int horas, Profesor profesor) {
+		this();
+		this.nombre = nombre;
+		this.horas = horas;
+		this.profesor = profesor;
+		this.notas = null;
+	}
 	/************************/
 	public int getCodigo() {
 		return codigo;
@@ -89,11 +90,18 @@ public class Modulo {
 	public void setNotas(List<Nota> notas) {
 		this.notas = notas;
 	}
-	
+	public Curso getCurso() {
+		return curso;
+	}
+	public void setCurso(Curso curso) {
+		this.curso = curso;
+	}
 	/***********************/
 	@Override
 	public String toString() {
-		return "Modulo [codigo=" + codigo + ", nombre=" + nombre + ", horas=" + horas + ", profesor=" + profesor
-				+ ", notas=" + notas + "]";
+		return "Modulo [codigo=" + codigo + ", nombre=" + nombre + ", horas=" + horas + ", profesor=" + profesor + "]";
+	}
+	public void addCurso(Curso curso2) {
+		this.curso = curso;
 	}
 }

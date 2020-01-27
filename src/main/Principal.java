@@ -61,10 +61,10 @@ public class Principal {
 				opcion = Integer.parseInt(IntroducirDatos.introducirDatos("Elegir opcion: "));
 				switch(opcion){
 				case 0: { System.out.println("FIN"); System.exit(0);}
-				case 1: listarAlumnosCurso(); break; //CursoDao.listarAlumnosCurso(); break;
-				case 2:
-				case 3:
-				case 4:
+				case 1: listarAlumnosCurso(); break;
+				case 2: listarAlumnosPasanCurso(); break;
+				case 3: listarAlumnosDelegados(); break;
+				case 4: listarNotasDeModuloSeleccionado(); break;
 				case 5:
 				case 6: insertarAlumno(); break;
 				case 7:
@@ -87,8 +87,8 @@ public class Principal {
 
 	private static void listarAlumnosCurso() {
 		int idCurso;
-		List<Alumno> listaAlumnos = null;
-		
+		List<Alumno> listaAlumnos;
+	
 		while(true) {
 			idCurso= IntroducirDatos.introducirInteger("ID del curso [0=Todos, -1=SALIR]: ");
 			if(idCurso == -1) {
@@ -100,30 +100,99 @@ public class Principal {
 				if( idCurso==0) {
 					System.out.println("Todos los cursos");
 					listaAlumnos = AlumnoDao.listadoAlumnos();
-				}
-				else {
-					System.out.println("Solo el curso: "+ idCurso);
-					listaAlumnos = CursoDao.listaAlumnosCurso(idCurso);
-				}
-
-				if (listaAlumnos == null) {
-					System.out.println("No se encuentran alumnos!");
-					continue;
-				}
-
-				if (listaAlumnos.size() == 0) {
-					System.out.println("No hay alumnos");
-				}
-				else {
-					for( Alumno alumno : listaAlumnos) {
-						System.out.println( alumno.toString());
+					
+					if(listaAlumnos.size() == 0) {
+						System.out.println("No se encuentran alumnos!");
+						continue;
 					}
 				}
-				return;
+				else {	// Curso especificado
+					System.out.println("Solo el curso: "+ idCurso);
+					Curso curso = CursoDao.getCurso(idCurso);
+					if(curso==null) {
+						System.out.println("Curso no encontrado");
+						continue;
+					}
+					listaAlumnos = curso.getAlumnos();
+				}
+				
+				for(Alumno alumno : listaAlumnos) {
+					System.out.println( alumno.toString());
+				}
+
 			}
 			catch(Exception e) { e.printStackTrace();}
 		}
 	}
+	
+	private static void listarNotasDeModuloSeleccionado() {
+		int idModulo;
+		List<Nota> listaNotas;
+		while(true) {
+			idModulo = IntroducirDatos.introducirInteger("ID del modulo [0=Todos, -1=SALIR]: ");
+			if(idModulo == -1) { System.out.println("Cancelado!"); return; }
+			
+			try{
+				if( idModulo==0) {
+					System.out.println("Todos los Modulos");
+					listaNotas = NotaDao.listadoNotas();
+					
+					if(listaNotas.size() == 0) {
+						System.out.println("No se encuentran Modulos!");
+						continue;
+					}
+				}
+				else {	// Curso especificado
+					System.out.println("Solo el Modulo: "+ idModulo);
+					Modulo modulo= ModuloDao.getModulo( idModulo );
+					if(modulo==null) {
+						System.out.println("Modulo no encontrado");
+						continue;
+					}
+					listaNotas = modulo.getNotas();
+				}
+				
+				System.out.println("Lista de Notas");
+				for(Nota nota: listaNotas) {
+					System.out.print( nota.toString());
+					System.out.println(" Profesor: " + nota.getModulo().getProfesor().getNombre());
+				}
+
+			}
+			catch(Exception e) { e.printStackTrace();}
+		}
+
+	}
+	
+	
+	private static void listarAlumnosPasanCurso(){
+		List<Alumno> alumnos = AlumnoDao.listadoAlumnos();
+		if( alumnos==null || alumnos.size()==0) {
+			System.out.println( "No hay alumnos ");
+			return;
+		}
+		System.out.println( ">> Lista de alumnos que pasan de curso ["+alumnos.size()+"]");
+		
+		for(Alumno alumno : alumnos) {
+			float nota = alumno.getNotaMedia();
+			if(nota == -1) return;
+			System.out.println( "Alumno ["+alumno.getNombre()+" NotaMedia: "+ alumno.getNotaMedia()+"]");
+		}
+	}
+	
+	private static void listarAlumnosDelegados() {
+		List<Alumno> alumnos = AlumnoDao.listadoAlumnosDelegados();
+		if( alumnos==null || alumnos.size()==0) {
+			System.out.println( "No hay alumnos delegados");
+			return;
+		}
+		System.out.println( ">> Lista de delegados ["+alumnos.size()+"]");
+		for( Alumno alumno : alumnos) {
+			System.out.println( alumno.getDni() + " "+
+					alumno.getApellidos()+" "+alumno.getCurso());
+		}
+	}
+	
 	
 	public static void insertarAlumno() {
 		String nombre = IntroducirDatos.introducirDatos("Nombre del alumno: ");
@@ -136,15 +205,14 @@ public class Principal {
 		Date fecNacimiento = IntroducirDatos.introducirFecha("Fecha de nacimiento: ");
 		boolean delegado = IntroducirDatos.introducirBooleano("Es delegado: ");
 		//Curso curso
-		Alumno alumno = new Alumno(nombre, dni, apellidos, direccion, codPostal, ciudad, telefono, fecNacimiento, delegado, null, null);
+		Alumno alumno = new Alumno(nombre, dni, apellidos, direccion, codPostal, ciudad, telefono, fecNacimiento, delegado);
 		AlumnoDao.insertarAlumno( alumno );
 	}
 	
 	public static void insertarCurso() {
 		String nombre = IntroducirDatos.introducirDatos("Nombre del curso: ");
 		int horas = IntroducirDatos.introducirInteger("Horas del curso: ");
-		Curso curso = new Curso( nombre, horas, null, null);
-		
+		Curso curso = new Curso( nombre, horas);
 		CursoDao.insertarCurso(curso);
 	}
 
@@ -153,17 +221,14 @@ public class Principal {
 		try { fecha = new SimpleDateFormat("dd/MM/yyyy").parse("29/07/1984");} catch (ParseException e) {e.printStackTrace(); }
 		
 		Alumno alumno = new Alumno("Zalo", "10000", "Alonso castro", "Bugarin, 6", "36869", "Ponteareas", "626660120", fecha, false);
-		Profesor profesor = new Profesor("10001", "Angel", "Lopez", "Palacio Real", 151, "Moaña", 5125, fecha, 2500, null);
+		Profesor profesor = new Profesor("10001", "Angel", "Lopez", "Palacio Real", 151, "Moaña", 5125, fecha, 2500);
 		Modulo modulo = new Modulo( "Programacion", 150, profesor);
 		Nota nota = new Nota( alumno, modulo, 5);
 		Curso curso = new Curso( "DAM", 600);
 		
-		//AlumnoDao.insertarAlumno( alumno );
-		//ProfesorDao.insertarProfesor( profesor );
-		CursoDao.insertarCurso( curso );
-		//ModuloDao.insertarModulo( modulo );
-		NotaDao.insertarNota( nota );
+		alumno.setCurso(curso);
+		modulo.setCurso(curso);
 		
-		AlumnoDao.addAlumnoACurso(alumno, curso);
+		NotaDao.insertarNota( nota );
 	}
 }
